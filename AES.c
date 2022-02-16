@@ -1,5 +1,6 @@
 #include "AES.h"
 
+#include <time.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -179,28 +180,16 @@ void encrypt(AES* aes, word* m) {
 //          printf("%08x\n",aes->round_keys[r][w]);
       }
 
-//    w0 = T0[(m[0] & 0xff000000) >> 24] ^ T1[(m[1] & 0xff0000) >> 16] ^
-//         T2[(m[2] & 0xff00) >> 8] ^ T3[m[3] & 0xff] ^ aes->round_keys[r][0];
-//      w1 = T0[(m[1] & 0xff000000) >> 24] ^ T1[(m[2] & 0xff0000) >> 16] ^
-//         T2[(m[3] & 0xff00) >> 8] ^ T3[m[0] & 0xff] ^ aes->round_keys[r][1];
-//    w2 = T0[(m[2] & 0xff000000) >> 24] ^ T1[(m[3] & 0xff0000) >> 16] ^
-//         T2[(m[0] & 0xff00) >> 8] ^ T3[m[1] & 0xff] ^ aes->round_keys[r][2];
-//    w3 = T0[(m[3] & 0xff000000) >> 24] ^ T1[(m[0] & 0xff0000) >> 16] ^
-//         T2[(m[1] & 0xff00) >> 8] ^ T3[m[2] & 0xff] ^ aes->round_keys[r][3];
-//    m[0] = w0;
-//    m[1] = w1;
-//    m[2] = w2;
-//    m[3] = w3;
-
   }
 
-//    printf("Before  subs\n");
-//    printf("%08x",m[0]);
-//    printf("%08x",m[1]);
-//    printf("%08x",m[2]);
-//    printf("%08x",m[3]);
+    printf("Before  subs\n");
+    printf("%08x",m[0]);
+    printf("%08x",m[1]);
+    printf("%08x",m[2]);
+    printf("%08x",m[3]);
+    printf("\n");
 
-    iSubBytes(m);
+    SubBytes(m);
     ShiftRows(m);
 
 //    printf("After  subs\n");
@@ -211,14 +200,16 @@ void encrypt(AES* aes, word* m) {
 
 
 
-//    printf("Before  last round key\n");
-//    printf("%08x",m[0]);
-//    printf("%08x",m[1]);
-//    printf("%08x",m[2]);
-//    printf("%08x",m[3]);
+    printf("Before  last round key\n");
+    printf("%08x",m[0]);
+    printf("%08x",m[1]);
+    printf("%08x",m[2]);
+    printf("%08x",m[3]);
+    printf("\n");
 
   for (size_t w = 0; w < 4; ++w) {
     m[w] ^= aes->round_keys[aes->rounds][w];
+    printf("%08x\n",aes->round_keys[aes->rounds][w]);
   }
 
 //
@@ -229,43 +220,89 @@ void encrypt(AES* aes, word* m) {
 //    printf("%08x",m[3]);
 }
 
+
+//  Round Key Guessing
+
+void reverseState(){
+
+}
+
+
+void checkState()
+{
+
+}
+
+
+void roundKeyByteGuess (AES* aes,word* m)
+{
+
+//            char key[1];
+//            srand(time(NULL));
+//            for (int i = 0; i < 1; i++) {
+//                key[i] = rand() % 256;
+//                printf("%.2x", (unsigned char)key[i]);
+//            }
+//            printf("\n");
+
+
+            int position = 1;
+            int keyguessByte;
+            srand(time(NULL));
+            for (int i = 0; i < 1; i++) {
+                keyguessByte = rand() % 256;
+                printf("%.2x", keyguessByte);
+                printf("\n");
+            }
+
+  printf(" message:\n  ");
+  printf("%08x", m[0]);
+    block *test= malloc(1*sizeof(block));
+    memcpy(test,m + 0,1*sizeof (block) );
+
+    printf(" test :\n  ");
+    printf("%08x", test);
+
+//    }
+
+
+
+
+
+
+
+
+
+
+
+}
+
+
+
+
+
 // Decrypt a message.
 // The message has to be of length 4 words.
 void decrypt(AES* aes, word* m) {
-  for (unsigned w = 0; w < 4; ++w) {
-    m[w] ^= aes->inv_round_keys[0][w];
-  }
-  word w0, w1, w2, w3;
-  for (unsigned r = 1; r < aes->rounds; ++r) {
-//    w0 = INVT0[(m[0] & 0xff000000) >> 24] ^ INVT1[(m[3] & 0xff0000) >> 16] ^
-//         INVT2[(m[2] & 0xff00) >> 8] ^ INVT3[m[1] & 0xff] ^
-//         aes->inv_round_keys[r][0];
-//    w1 = INVT0[(m[1] & 0xff000000) >> 24] ^ INVT1[(m[0] & 0xff0000) >> 16] ^
-//         INVT2[(m[3] & 0xff00) >> 8] ^ INVT3[m[2] & 0xff] ^
-//         aes->inv_round_keys[r][1];
-//    w2 = INVT0[(m[2] & 0xff000000) >> 24] ^ INVT1[(m[1] & 0xff0000) >> 16] ^
-//         INVT2[(m[0] & 0xff00) >> 8] ^ INVT3[m[3] & 0xff] ^
-//         aes->inv_round_keys[r][2];
-//    w3 = INVT0[(m[3] & 0xff000000) >> 24] ^ INVT1[(m[2] & 0xff0000) >> 16] ^
-//         INVT2[(m[1] & 0xff00) >> 8] ^ INVT3[m[0] & 0xff] ^
-//         aes->inv_round_keys[r][3];
-//    m[0] = w0;
-//    m[1] = w1;
-//    m[2] = w2;
-//    m[3] = w3;
 
-      invSubBytes(m);
-      invShiftRows(m);
 
-//      invMixColumns(m);
-
-  }
-
-//    invMixColumns(m);
 
   for (unsigned w = 0; w < 4; ++w) {
-    m[w] ^= aes->inv_round_keys[aes->rounds][w];
+      m[w] ^= aes->inv_round_keys[0][w];
+      printf("%08x\n",aes->inv_round_keys[0][w]);
   }
+
+  invShiftRows(m);
+  invSubBytes(m);
+
+//    for (unsigned w = 0; w < 4; ++w) {
+//        m[w] ^= aes->inv_round_keys[0][w];
+//        printf("%08x\n",aes->inv_round_keys[0][w]);
+//    }
+
+//  for (unsigned w = 0; w < 4; ++w) {
+//    m[w] ^= aes->inv_round_keys[aes->rounds][w];
+//  }
 }
 
 // Calculates the round keys for a key of length 128 bit

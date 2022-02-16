@@ -20,6 +20,9 @@ void delete_aes_instance(AES* aes);
 void encrypt(AES* aes, word* m);
 void decrypt(AES* aes, word* m);
 
+
+void roundKeyByteGuess(AES* aes, word* m);
+
 extern const word SBOX[256];
 extern word INVSBOX[256];
 extern const word ROUND_CONSTANTS[256];
