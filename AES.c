@@ -237,15 +237,6 @@ void checkState()
 void roundKeyByteGuess (AES* aes,word* m)
 {
 
-//            char key[1];
-//            srand(time(NULL));
-//            for (int i = 0; i < 1; i++) {
-//                key[i] = rand() % 256;
-//                printf("%.2x", (unsigned char)key[i]);
-//            }
-//            printf("\n");
-
-
             int position = 1;
             int keyguessByte;
             srand(time(NULL));
@@ -262,18 +253,6 @@ void roundKeyByteGuess (AES* aes,word* m)
 
     printf(" test :\n  ");
     printf("%08x", test);
-
-//    }
-
-
-
-
-
-
-
-
-
-
 
 }
 
