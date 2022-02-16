@@ -236,15 +236,38 @@ void checkState()
 
 void roundKeyByteGuess (AES* aes,word* m)
 {
-
             int position = 1;
             int keyguessByte;
             srand(time(NULL));
             for (int i = 0; i < 1; i++) {
                 keyguessByte = rand() % 256;
                 printf("%.2x", keyguessByte);
-                printf("\n");
+//                printf("\n");
             }
+
+            guessed key
+//for (for the position)
+    for (int i = 00; i <= 0xff; i++) {
+
+        keyguessByte = i;
+        printf("%.2x", keyguessByte);
+        printf("\n");
+
+        if (m[position] xor keyguessByte = 0)
+        {
+//            save the guess
+//            position++
+        }
+
+        invShiftRows(m);
+        invSubBytes(m);
+
+
+    }
+
+
+
+
 
   printf(" message:\n  ");
   printf("%08x", m[0]);
