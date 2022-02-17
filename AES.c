@@ -6,18 +6,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-
-# include <sys/types.h>
-# include <unistd.h>
-
 // Calculate the round keys for the AES version.
 void keyschedule128(AES* aes);
-void keyschedule192(AES* aes);
-void keyschedule256(AES* aes);
 
 // Construct the round keys for decryption from the round keys.
 void set_invroundkeys(AES* aes);
-
 // The SubBytes step for a block.
 void SubBytes(word* m);
 // The invSubBytes step for a block.
@@ -30,16 +23,8 @@ void invShiftRows(word* m);
 void MixColumns(word* m);
 // The invMixColumns step.
 void invMixColumns(word* m);
-
 // Set INVSBOX to the inverse of SBOX.
 void set_invsbox(void);
-
-// Calculate the T-tables using SBOX.
-void calc_tables(void);
-
-// Calculate the inverse T-tables using INVSBOX.
-void calc_invtables(void);
-
 // The standard Rijndael S-box
 const word SBOX[256] = {
     0x63, 0x7C, 0x77, 0x7B, 0xF2, 0x6B, 0x6F, 0xC5, 0x30, 0x01, 0x67, 0x2B,
@@ -86,17 +71,6 @@ unsigned char INV_SBOX[] = {
         0x60, 0x51, 0x7F, 0xA9, 0x19, 0xB5, 0x4A, 0x0D, 0x2D, 0xE5, 0x7A, 0x9F, 0x93, 0xC9, 0x9C, 0xEF,
         0xA0, 0xE0, 0x3B, 0x4D, 0xAE, 0x2A, 0xF5, 0xB0, 0xC8, 0xEB, 0xBB, 0x3C, 0x83, 0x53, 0x99, 0x61,
         0x17, 0x2B, 0x04, 0x7E, 0xBA, 0x77, 0xD6, 0x26, 0xE1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0C, 0x7D };
-// T-tables for fast 32-bit encryption
-static word T0[256];
-static word T1[256];
-static word T2[256];
-static word T3[256];
-
-// T-tables for fast 32-bit decryption
-static word INVT0[256];
-static word INVT1[256];
-static word INVT2[256];
-static word INVT3[256];
 
 // The constants for the Rijndael key schedule
 const word ROUND_CONSTANTS[256] = {
@@ -134,17 +108,9 @@ AES* create_aes_instance(word* key, size_t key_size) {
   aes->key = malloc(key_size * sizeof(word));
   memcpy(aes->key, key, key_size * sizeof(word));
   set_invsbox();
-  calc_tables();
-  calc_invtables();
   if (key_size == 4) {
     aes->rounds = 4;
     keyschedule128(aes);
-  } else if (key_size == 6) {
-    aes->rounds = 12;
-    keyschedule192(aes);
-  } else {
-    aes->rounds = 14;
-    keyschedule256(aes);
   }
   set_invroundkeys(aes);
   return aes;
@@ -157,7 +123,6 @@ void delete_aes_instance(AES* aes) {
 }
 
 // Encrypt a message.
-// The message has to be of length 4 words.
 void encrypt(AES* aes, word* m) {
 //    printf("Before adding first roudn key\n");
 //    printf("%08x",m[0]);
@@ -167,16 +132,9 @@ void encrypt(AES* aes, word* m) {
 //    printf("\n");
   for (size_t w = 0; w < 4; ++w) {
     m[w] ^= aes->round_keys[0][w];
-      printf("%08x\n",aes->round_keys[0][w]);
+//      printf("%08x\n",aes->round_keys[0][w]);
   }
-//    printf("After adding first roudn key\n");
-//    printf("%08x",m[0]);
-//    printf("%08x",m[1]);
-//    printf("%08x",m[2]);
-//    printf("%08x",m[3]);
 //    printf("\n");
-
-  word w0, w1, w2, w3;
   for (size_t r = 1; r < aes->rounds; ++r) {
 
 
@@ -230,7 +188,7 @@ void encrypt(AES* aes, word* m) {
 
   for (size_t w = 0; w < 4; ++w) {
     m[w] ^= aes->round_keys[aes->rounds][w];
-    printf("%08x\n",aes->round_keys[aes->rounds][w]);
+//    printf("%08x\n",aes->round_keys[aes->rounds][w]);
   }
 
 //
@@ -244,13 +202,9 @@ void encrypt(AES* aes, word* m) {
 
 
 //  Round Key Guessing
-
 int randomGuess()
 {
-    int keyguessByte;
-    srand(time(NULL));
-    keyguessByte = rand() % 256;
-    return keyguessByte;
+    return rand() % 256;
 }
 
 word encrypt1(AES* aes, word* m) {
@@ -339,9 +293,8 @@ word encrypt1(AES* aes, word* m) {
 
 void createDSets(AES* aes)
 {
-    word DeltaSetContainer[256][256];
-    word deltaSet[256];
-/* */
+    word DeltaSetContainer[256][16];
+    word deltaSet[16];
 
     int count = 0;
     while (count <= 5) {
@@ -349,65 +302,63 @@ void createDSets(AES* aes)
         for (int j = 00; j <= 0xff; j++) {
             deltaSet[0] = j;
             int guessedByte = randomGuess();
-            printf("\n j loop , %.2x  and guessed byte %.2x\n", j, guessedByte);
-            for (int y = 1; y < 256; y++) {
-//                printf("y loop ");
-//                printf("%.2x\n", guessedByte);
+//            printf("\n j loop , %.2x  and guessed byte %.2x\n", j, guessedByte);
+            for (int y = 1; y < 16; y++) {
                 deltaSet[y] = guessedByte;
             }
-            printf("\nadding delta sets in delta set with first bit %02x \n" , j);
+//            printf("\n adding delta sets in delta set with first bit %02x \n" , j);
             memcpy(DeltaSetContainer[count], deltaSet, sizeof(deltaSet));
             count++;
-            printf("After count++ %d", count);
         }
     }
 
-    printf("\n give me the  container\n");
-    for(int i =0 ; i<256 ; i++)
-    {
-        printf("%02x",DeltaSetContainer[5][i]);
+    printf("\n give me the delta set container\n");
+    word wt[2][16];
+
+    for(int i =0 ; i<2 ; i++) {
+        for ( int j = 0; j < 16; j++) {
+            wt[i][j] = DeltaSetContainer[i][j];
+           printf("%02x", DeltaSetContainer[i][j]);
+        }
+        printf("\n");
     }
 
+    block test = {0x00161616, 0x16161616, 0x16161616, 0x16161616};
+    encrypt(aes,test);
 
-    printf("\n");
+    printf(" After Encrypt of guess\n");
+    for ( int j = 0; j < 4; j++) {
+        printf("%02x", test[j]);
+    }
 
-//    word encrypted_ds[256];
-//    word encrypted_dsets[256][256];
-//    for(int i =0; i<=256; i++)
-//    {
-//        memcpy(encrypted_ds, encrypt1(aes,DeltaSetContainer[i]), sizeof(encrypted_ds));
-//
-//    }
-//    memcpy(encrypted_dsets[0], encrypted_ds, sizeof(encrypted_dsets));
-//
-//
-//    printf("\n give me the encripted dset container\n");
-//    for(int i =0 ; i<256 ; i++)
-//    {
-//        printf("%08x ",encrypted_dsets[0]);
-//
-//    }
+    reverseState(aes,test);
+
+    printf("\n After reverse of guess\n");
+    for ( int j = 0; j < 4; j++) {
+        printf("%02x", test[j]);
+    }
 
 }
-
-
-
-void roundKeyByteGuess (AES* aes,word* m)
+void squareAttack(AES* aes,word* m)
 {
 createDSets(aes);
 }
 
-// Decrypt a message.
+// reverse state a message.
 // The message has to be of length 4 words.
-void decrypt(AES* aes, word* m) {
-
+void reverseState(AES* aes, word* m) {
   for (unsigned w = 0; w < 4; ++w) {
       m[w] ^= aes->inv_round_keys[0][w];
-      printf("%08x\n",aes->inv_round_keys[0][w]);
   }
+    printf("\n After roundkey reverse guess:\n  ");
+    printf("%08x", m[0]);
+    printf("%08x", m[1]);
+    printf("%08x", m[2]);
+    printf("%08x", m[3]);
+    printf("\n");
+
   invShiftRows(m);
   invSubBytes(m);
-
 
 }
 
@@ -435,109 +386,6 @@ void keyschedule128(AES* aes) {
     round_key[3] ^= round_key[2];
 
     memcpy(aes->round_keys[round], round_key, sizeof(block));
-  }
-
-  return;
-}
-
-// Calculates the round keys for a key of length 192 bit
-void keyschedule192(AES* aes) {
-  word round_key[6];
-  memcpy(round_key, aes->key, 6 * sizeof(word));
-  word tword;
-  aes->round_keys = malloc((aes->rounds + 1) * sizeof(block));
-
-  memcpy(aes->round_keys[0], round_key, sizeof(block));
-
-  for (size_t round = 1; round <= aes->rounds; ++round) {
-    if (round % 3 == 1) {
-      aes->round_keys[round][0] = round_key[4];
-      aes->round_keys[round][1] = round_key[5];
-    }
-
-    if (round % 3 == 2) {
-      aes->round_keys[round][0] = round_key[2];
-      aes->round_keys[round][1] = round_key[3];
-      aes->round_keys[round][2] = round_key[4];
-      aes->round_keys[round][3] = round_key[5];
-      continue;
-    }
-
-    tword = SBOX[(round_key[5] >> 16) & 0xff];
-    tword <<= 8;
-    tword ^= SBOX[(round_key[5] >> 8) & 0xff];
-    tword <<= 8;
-    tword ^= SBOX[round_key[5] & 0xff];
-    tword <<= 8;
-    tword ^= SBOX[(round_key[5] >> 24) & 0xff];
-    tword ^= ROUND_CONSTANTS[(2 * round + 1) / 3] << 24;
-
-    round_key[0] ^= tword;
-    round_key[1] ^= round_key[0];
-    round_key[2] ^= round_key[1];
-    round_key[3] ^= round_key[2];
-    round_key[4] ^= round_key[3];
-    round_key[5] ^= round_key[4];
-
-    if (round % 3 == 0) {
-      aes->round_keys[round][0] = round_key[0];
-      aes->round_keys[round][1] = round_key[1];
-      aes->round_keys[round][2] = round_key[2];
-      aes->round_keys[round][3] = round_key[3];
-    } else if (round % 3 == 1) {
-      aes->round_keys[round][2] = round_key[0];
-      aes->round_keys[round][3] = round_key[1];
-    }
-  }
-  return;
-}
-
-// Calculates the round keys for a key of length 256 bit
-void keyschedule256(AES* aes) {
-  word round_key[8];
-  memcpy(round_key, aes->key, 8 * sizeof(word));
-  word tword;
-  aes->round_keys = malloc((aes->rounds + 1) * sizeof(block));
-
-  memcpy(aes->round_keys[0], round_key, sizeof(block));
-  memcpy(aes->round_keys[1], &round_key[4], sizeof(block));
-
-  for (unsigned round = 2; round <= aes->rounds; ++round) {
-    if (round % 2 == 0) {
-      tword = SBOX[(round_key[7] >> 16) & 0xff];
-      tword <<= 8;
-      tword ^= SBOX[(round_key[7] >> 8) & 0xff];
-      tword <<= 8;
-      tword ^= SBOX[round_key[7] & 0xff];
-      tword <<= 8;
-      tword ^= SBOX[(round_key[7] >> 24) & 0xff];
-      tword ^= ROUND_CONSTANTS[round / 2] << 24;
-
-      round_key[0] ^= tword;
-      round_key[1] ^= round_key[0];
-      round_key[2] ^= round_key[1];
-      round_key[3] ^= round_key[2];
-
-      tword = SBOX[(round_key[3] >> 24) & 0xff] << 24;
-      tword ^= SBOX[(round_key[3] >> 16) & 0xff] << 16;
-      tword ^= SBOX[(round_key[3] >> 8) & 0xff] << 8;
-      tword ^= SBOX[round_key[3] & 0xff];
-
-      round_key[4] ^= tword;
-      round_key[5] ^= round_key[4];
-      round_key[6] ^= round_key[5];
-      round_key[7] ^= round_key[6];
-
-      aes->round_keys[round][0] = round_key[0];
-      aes->round_keys[round][1] = round_key[1];
-      aes->round_keys[round][2] = round_key[2];
-      aes->round_keys[round][3] = round_key[3];
-    } else {
-      aes->round_keys[round][0] = round_key[4];
-      aes->round_keys[round][1] = round_key[5];
-      aes->round_keys[round][2] = round_key[6];
-      aes->round_keys[round][3] = round_key[7];
-    }
   }
   return;
 }
@@ -720,67 +568,3 @@ void set_invsbox(void) {
   }
   return;
 }
-
-void calc_tables(void) {
-  // Calculate the entries for the T-tables in parallel
-  for (word a = 0; a < 256; ++a) {
-    // Calculate b1 = S(a)*1, b2 = S(a)*2 and b3 = S(a)*3
-    word b1 = SBOX[a];
-    word b2;
-    if ((b1 & 0x80) == 0x80) {
-      b2 = ((b1 << 1) & 0xff) ^ 0x1b;
-    } else {
-      b2 = (b1 << 1) & 0xff;
-    }
-    word b3 = b1 ^ b2;
-
-    // Store the combined 32-bit vectors in the T-tables
-    T0[a] = (b2 << 24) ^ (b1 << 16) ^ (b1 << 8) ^ b3;
-    T1[a] = (b3 << 24) ^ (b2 << 16) ^ (b1 << 8) ^ b1;
-    T2[a] = (b1 << 24) ^ (b3 << 16) ^ (b2 << 8) ^ b1;
-    T3[a] = (b1 << 24) ^ (b1 << 16) ^ (b3 << 8) ^ b2;
-  }
-  return;
-}
-
-void calc_invtables() {
-  // Calculate the entries for the T-tables in parallel
-  word w, w9, wb, wd, we;
-  for (word a = 0; a < 256; ++a) {
-    // Calculate w9 = invS(a)*0x09, wb = invS(a)*0x0b,
-    // wd = invS(a)*0x0d and we = invS(a)*0x0e
-    w = w9 = wb = wd = INVSBOX[a];
-    we = 0;
-    if ((w & 0x80) == 0x80) {
-      w = ((w << 1) & 0xFF) ^ 0x1b;
-    } else {
-      w = ((w << 1) & 0xFF);
-    }
-    wb ^= w;
-    we ^= w;
-    if ((w & 0x80) == 0x80) {
-      w = ((w << 1) & 0xFF) ^ 0x1b;
-    } else {
-      w = ((w << 1) & 0xFF);
-    }
-    wd ^= w;
-    we ^= w;
-    if ((w & 0x80) == 0x80) {
-      w = ((w << 1) & 0xFF) ^ 0x1b;
-    } else {
-      w = ((w << 1) & 0xFF);
-    }
-    w9 ^= w;
-    wb ^= w;
-    wd ^= w;
-    we ^= w;
-
-    // Store the combined 32-bit vectors in the T-tables
-    INVT0[a] = (we << 24) ^ (w9 << 16) ^ (wd << 8) ^ wb;
-    INVT1[a] = (wb << 24) ^ (we << 16) ^ (w9 << 8) ^ wd;
-    INVT2[a] = (wd << 24) ^ (wb << 16) ^ (we << 8) ^ w9;
-    INVT3[a] = (w9 << 24) ^ (wd << 16) ^ (wb << 8) ^ we;
-  }
-  return;
-}
-
