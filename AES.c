@@ -408,6 +408,7 @@ void decrypt(AES* aes, word* m) {
   invShiftRows(m);
   invSubBytes(m);
 
+
 }
 
 // Calculates the round keys for a key of length 128 bit
