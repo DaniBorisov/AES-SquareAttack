@@ -199,7 +199,6 @@ void encrypt(AES* aes, word* m) {
 //    printf("%08x",m[3]);
 
 
-
     printf("Before  last round key\n");
     printf("%08x",m[0]);
     printf("%08x",m[1]);
