@@ -130,67 +130,21 @@ void encrypt(AES* aes, word* m) {
   }
 //    printf("\n");
   for (size_t r = 1; r < aes->rounds; ++r) {
-
-
-//      printf("Before  Mixing and subs\n");
-//      printf("%08x",m[0]);
-//      printf("%08x",m[1]);
-//      printf("%08x",m[2]);
-//      printf("%08x",m[3]);
-
       SubBytes(m);
       ShiftRows(m);
       MixColumns(m);
-//
-//      printf("\n");
-//      printf("%08x",m[0]);
-//      printf("%08x",m[1]);
-//      printf("%08x",m[2]);
-//      printf("%08x",m[3]);   printf(" After\n");
-
-
       for (size_t w = 0; w < 4; ++w) {
           m[w] ^= aes->round_keys[r][w];
 //          printf("%08x\n",aes->round_keys[r][w]);
       }
-
   }
-
-    printf("Before  subs\n");
-    printf("%08x",m[0]);
-    printf("%08x",m[1]);
-    printf("%08x",m[2]);
-    printf("%08x",m[3]);
-    printf("\n");
-
     SubBytes(m);
     ShiftRows(m);
-
-//    printf("After  subs\n");
-//    printf("%08x",m[0]);
-//    printf("%08x",m[1]);
-//    printf("%08x",m[2]);
-//    printf("%08x",m[3]);
-
-
-    printf("Before  last round key\n");
-    printf("%08x",m[0]);
-    printf("%08x",m[1]);
-    printf("%08x",m[2]);
-    printf("%08x",m[3]);
     printf("\n");
-
   for (size_t w = 0; w < 4; ++w) {
     m[w] ^= aes->round_keys[aes->rounds][w];
 //    printf("%08x\n",aes->round_keys[aes->rounds][w]);
   }
-
-//
-//    printf("After  last round key\n");
-//    printf("%08x",m[0]);
-//    printf("%08x",m[1]);
-//    printf("%08x",m[2]);
-//    printf("%08x",m[3]);
 }
 
 //  Round Key Guessing
