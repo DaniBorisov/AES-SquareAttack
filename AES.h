@@ -6,7 +6,6 @@
 
 typedef uint32_t word;  // A word is an unsigned of 32-bit size.
 typedef word block[4];  // A block is an array of 4 words.
-
 typedef struct AES {
   size_t key_size;
   word* key;
@@ -18,10 +17,8 @@ typedef struct AES {
 AES* create_aes_instance(word* key, size_t key_size);
 void delete_aes_instance(AES* aes);
 void encrypt(AES* aes, word* m);
-void decrypt(AES* aes, word* m);
-
-
-void roundKeyByteGuess(AES* aes, word* m);
+void reverseState(AES* aes, word* m);
+void squareAttack(AES* aes, word* m);
 
 extern const word SBOX[256];
 extern word INVSBOX[256];
