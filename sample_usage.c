@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include "AES.h"
-#include "SquareAttack.h"
+
 
 int main() {
     srand(time(NULL));

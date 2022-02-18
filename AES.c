@@ -97,7 +97,7 @@ const word ROUND_CONSTANTS[256] = {
     0x74, 0xe8, 0xcb, 0x8d};
 
 AES* create_aes_instance(word* key, size_t key_size) {
-  if (key_size != 4 && key_size != 6 && key_size != 8) {
+  if (key_size != 4 ) {
     fprintf(stderr, "Error: Invalid keysize. Setting it to 128.\n");
     fflush(stderr);
     return NULL;
@@ -352,7 +352,6 @@ void MixColumns(word* m) {
   block t = {0, 0, 0, 0};
   for (unsigned i = 0; i < 4; ++i) {
     for (unsigned j = 0; j < 4; ++j) {
-      // Calculate b1 = S(a)*1, b2 = S(a)*2 and b3 = S(a)*3
       word b1 = (m[i] >> 8 * (3 - j)) & 0xFF;
       word b2;
       if ((b1 & 0x80) == 0x80) {

@@ -8,4 +8,4 @@ include_directories(.)
 add_executable(AES
         AES.c
         AES.h
-        sample_usage.c SquareAttack.c SquareAttack.h)
+        sample_usage.c)

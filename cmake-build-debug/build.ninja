@@ -74,13 +74,6 @@ build CMakeFiles/AES.dir/sample_usage.c.obj: C_COMPILER__AES_Debug E$:/DTU/Semes
   OBJECT_DIR = CMakeFiles\AES.dir
   OBJECT_FILE_DIR = CMakeFiles\AES.dir
 
-build CMakeFiles/AES.dir/SquareAttack.c.obj: C_COMPILER__AES_Debug E$:/DTU/Semester$ 4/Modern$ crypto/AES/SquareAttack.c || cmake_object_order_depends_target_AES
-  DEP_FILE = CMakeFiles\AES.dir\SquareAttack.c.obj.d
-  FLAGS = -g -std=gnu11
-  INCLUDES = -I"E:/DTU/Semester 4/Modern crypto/AES/."
-  OBJECT_DIR = CMakeFiles\AES.dir
-  OBJECT_FILE_DIR = CMakeFiles\AES.dir
-
 
 # =============================================================================
 # Link build statements for EXECUTABLE target AES
@@ -89,7 +82,7 @@ build CMakeFiles/AES.dir/SquareAttack.c.obj: C_COMPILER__AES_Debug E$:/DTU/Semes
 #############################################
 # Link the executable AES.exe
 
-build AES.exe: C_EXECUTABLE_LINKER__AES_Debug CMakeFiles/AES.dir/AES.c.obj CMakeFiles/AES.dir/sample_usage.c.obj CMakeFiles/AES.dir/SquareAttack.c.obj
+build AES.exe: C_EXECUTABLE_LINKER__AES_Debug CMakeFiles/AES.dir/AES.c.obj CMakeFiles/AES.dir/sample_usage.c.obj
   FLAGS = -g
   LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   OBJECT_DIR = CMakeFiles\AES.dir
