@@ -264,7 +264,7 @@ void set_invroundkeys(AES* aes) {
 }
 
 // The SubBytes step for a block.
-void SubBytes(word* m) {
+void SubBytes(word* m){
   for (unsigned w = 0; w < 4; ++w) {
     m[w] = (SBOX[m[w] >> 24] << 24) ^ (SBOX[(m[w] >> 16) & 0xff] << 16) ^
            (SBOX[(m[w] >> 8) & 0xff] << 8) ^ SBOX[m[w] & 0xff];
